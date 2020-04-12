@@ -3,6 +3,12 @@
 
 declare(strict_types=1);
 
+$errlevel = error_reporting();
+error_reporting(-1);
+ini_set('display_errors', 'On');
+ini_set('error_prepend_string', '<font color=red>');
+ini_set('error_append_string', '</font>');
+
 chdir(dirname(__DIR__));
 
 require dirname(__DIR__).'/vendor/autoload.php';
@@ -20,23 +26,14 @@ if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
     putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
 }
 
-
 $container = require 'config/container.php';
-
-//echo getcwd() . "\n";
 
 $start = microtime(true);
 
+$app = $container->get(App\Controller\FileController::class);
+$app->getFile();
 
-$app = $container->get(App\Application::class);
-$app->download();
-
-//\Symfony\Component\VarDumper\VarDumper::dump($container->get(App\Application::class)); exit();
-
-//$ftp = $container->get(App\Ftp\Ftp::class);
-//$ftp->getZipArchive();
-//$ftp->extractFromZip();
-
-echo "<pre>";
-print_r(error_get_last());
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
+
+error_reporting($errlevel);
+ini_set('display_errors','Off');

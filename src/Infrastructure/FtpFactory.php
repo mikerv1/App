@@ -12,7 +12,7 @@ class FtpFactory
     public function __invoke(ContainerInterface $container)
     {
         $connect = $container->get('config')['ftp']['connect'];
-        //var_dump($connect); exit();
-        return new Ftp($connect);
+        $fileName = $container->get('config')['ftp']['fileName'];
+        return new Ftp($connect, $fileName);
     }
 }
