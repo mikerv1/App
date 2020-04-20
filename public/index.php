@@ -2,24 +2,46 @@
 
 declare(strict_types=1);
 
-use Symfony\Component\Dotenv\Dotenv;
+$errlevel = error_reporting(-1);
+ini_set('display_errors', 'On');
+ini_set('error_prepend_string', '<font color=red>');
+ini_set('error_append_string', '</font>');
+
+use FastRoute\RouteCollector;
+
+chdir(dirname(__DIR__));
 
 require dirname(__DIR__).'/vendor/autoload.php';
 
-// Load cached env vars if the .env.local.php file exists
-// Run "composer dump-env prod" to create it (requires symfony/flex >=1.2)
-if (is_array($env = @include dirname(__DIR__).'/.env.local.php')) {
-    $_SERVER += $env;
-    $_ENV += $env;
-} elseif (!class_exists(Dotenv::class)) {
-    throw new RuntimeException('Please run "composer require symfony/dotenv" to load the ".env" files configuring the application.');
-} else {
-    // load all the .env files
-    (new Dotenv(false))->loadEnv(dirname(__DIR__).'/.env');
+$container = require 'config/container.php';
+
+$start = microtime(true);
+
+$dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
+    $r->addRoute('GET', '/', 'App\Controller\ApiController');
+});
+
+$route = $dispatcher->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+
+switch ($route[0]) {
+    case FastRoute\Dispatcher::NOT_FOUND:
+        echo '404 Not Found';
+        break;
+
+    case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+        echo '405 Method Not Allowed';
+        break;
+
+    case FastRoute\Dispatcher::FOUND:
+        $controller = $route[1];
+        $parameters = $route[2];
+        
+        $getController = $container->get($controller);
+        $getController->apiAction();
+        break;
 }
 
-$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = ($_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null) ?: 'dev';
-$_SERVER['APP_DEBUG'] = $_SERVER['APP_DEBUG'] ?? $_ENV['APP_DEBUG'] ?? 'prod' !== $_SERVER['APP_ENV'];
-$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = (int) $_SERVER['APP_DEBUG'] || filter_var($_SERVER['APP_DEBUG'], FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
-
+error_reporting($errlevel);
+ini_set('display_errors','Off');

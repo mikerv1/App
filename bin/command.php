@@ -3,8 +3,7 @@
 
 declare(strict_types=1);
 
-$errlevel = error_reporting();
-error_reporting(-1);
+$errlevel = error_reporting(-1);
 ini_set('display_errors', 'On');
 ini_set('error_prepend_string', '<font color=red>');
 ini_set('error_append_string', '</font>');
@@ -31,8 +30,9 @@ $container = require 'config/container.php';
 $start = microtime(true);
 
 $app = $container->get(App\Controller\FileController::class);
-$app->getFile();
-
+//$resault = $app->getFile();
+$resault = $app->getData();
+\Symfony\Component\VarDumper\VarDumper::dump($resault);
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
 error_reporting($errlevel);

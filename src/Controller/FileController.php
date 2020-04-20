@@ -41,4 +41,8 @@ class FileController {
             die();
         }
     }
+    
+    public function getData() : array {
+        return $this->service->getData();
+    }
 }
