@@ -18,7 +18,7 @@ class FilesMigration {
                 id INTEGER PRIMARY KEY,
                 name  VARCHAR (255) NOT NULL,
                 date TEXT,
-                path VARCHAR (255) NOT NULL,
+                status VARCHAR (255) NOT NULL,
                 description TEXT);'];
         
         foreach ($commands as $command) {

@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use App\Entity\File;
+use App\Tests\Builder\FileBuilder;
+
 
 class FileTest extends TestCase {
     
-    public function testFile() {
-        $file = new File('fsdfsfsfsf', new \DateTime(), 'saasdadadada');
-        var_dump($file);
+    public function testFile() : void {
+        
+        $file = new FileBuilder();
+        $file->newFile('/downloaded/txt/919026880516d799b2f9f56cdbea08b4.txt', '');        
     }
     
     public function testBasicTest()

@@ -30,9 +30,9 @@ $container = require 'config/container.php';
 $start = microtime(true);
 
 $app = $container->get(App\Controller\FileController::class);
-//$resault = $app->getFile();
-$resault = $app->getData();
-\Symfony\Component\VarDumper\VarDumper::dump($resault);
+$app->getFile();
+$app->getData();
+
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
 error_reporting($errlevel);

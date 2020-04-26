@@ -20,22 +20,47 @@ class FileService {
     }
     
     public function createFile() : void {
-        $getFTpFile = $this->ftp->getZipArchive()->extractFromZip()->parsToTxt();
+        $getFTPFile = $this->ftp->getZipArchive()->extractFromZip()->parsToTxt();
         
-        $file = new File(getcwd() . '/downloaded/txt/', new \DateTime(), $getFTpFile->fileTxt);
+        $file = new File(getcwd() . '/downloaded/txt/' . $getFTPFile->fileTxt, new \DateTimeImmutable());
+        
+        if($this->repo->getMaxId()) {
+            $lastFile = $this->repo->getLastFile();
+            if($lastFile->status === File::ACTIVE) {
+                $lastFile->onClosed();
+                $this->repo->updateStatus($lastFile);
+            }
+        }
         
         $this->repo->save($file);
     }
     
-    public function  getData() : array {
-        //$getTxtFile = $this->repo->getLastFile();
+    public function  getData() : void {
         
-        $stream = new FileReader(getcwd() . '/downloaded/txt/919026880516d799b2f9f56cdbea08b4.txt');
-        $stream->SetOffset(31);
+        $file = $this->repo->getLastFile();
+        
+        $date = $file->date->format('n');
+        
+        $symbolsMonth = ['JAN21', 'FEB21', 'MAR21', 'APR20', 'MAY20', 'JUN20', 'JUL20', 'AUG20', 'SEP20', 'OCT20', 'NOV20', 'DEC20'];
+        
+        $getSymbolMonth = $symbolsMonth[$date - 1];
+        
+       $lines = file($file->name);
+ 
+        foreach($lines as $num_line => $line_value)
+        {
+            if(strpos($line_value, $getSymbolMonth) !== FALSE) {
+                $line[] = $num_line;
+            }
+        }
+        
+        $stream = new FileReader($file->name);
+        
+        $stream->SetOffset($line[0]);
         $result = $stream->Read(1);
         
         //$pos = strripos($result[0], "MAY20");
-        $pos = stripos($result[0], "APR20");
+        $pos = stripos($result[0], $getSymbolMonth);
         
         $mod = substr($result[0], $pos + 5); // or 50 for all string
                 
@@ -62,7 +87,15 @@ class FileService {
             $t = $temp;
         }
         
-        return $chunkArray;        
+        $jsonData = json_encode($chunkArray);
+        
+        if($this->repo->getMaxId()) {
+            $lastFile = $this->repo->getLastFile();
+            if($lastFile->status === File::ACTIVE) {
+                $lastFile->description = $jsonData;
+                $this->repo->updateDescription($lastFile);
+            }
+        }
     }
     
     private function divide_sample(string $sample_number) : array {

@@ -3,6 +3,7 @@ vendor/
 
 # Other directories & files
 tmp/
+DB/
 
 var/
 
@@ -15,3 +16,5 @@ nbproject/
 composer.lock
 
 PHP_draft.php
+
+note
