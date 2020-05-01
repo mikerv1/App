@@ -30,9 +30,9 @@ $container = require 'config/container.php';
 $start = microtime(true);
 
 $app = $container->get(App\Controller\FileController::class);
-$app->getFile();
+//$app->getFile();
 $app->getData();
-
+//$app->migrate();
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
 error_reporting($errlevel);

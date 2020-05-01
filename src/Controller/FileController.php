@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use App\Services\FileService;
 use App\Migrations\FilesMigration;
-//use Monolog\Logger;
+use Monolog\Logger;
 //use App\Repository\FileRepository;
 //
 //use App\Migrations\FilesMigration;
@@ -16,16 +16,16 @@ class FileController {
     private object $service;
     private object $filesMigration;
 //    private object $ftp;
-//    private object $log;
+    private object $log;
 //    private object $file;
 //    private object $migration;
     
-    public function __construct(FileService $service, FilesMigration $filesMigration)
+    public function __construct(FileService $service, FilesMigration $filesMigration, Logger $log)
     {
         $this->service = $service;
         $this->filesMigration = $filesMigration;
 //        $this->ftp = $ftp;
-//        $this->log = $log;
+        $this->log = $log;
 //        $this->file = $file;
 //        $this->migration = $migration;
     }
@@ -41,7 +41,6 @@ class FileController {
         catch (\Exception $e)
         {
             $this->log->info($e->getMessage());
-            die();
         }
     }
     

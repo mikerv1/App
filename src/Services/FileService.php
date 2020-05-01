@@ -43,7 +43,9 @@ class FileService {
         
         $symbolsMonth = ['JAN21', 'FEB21', 'MAR21', 'APR20', 'MAY20', 'JUN20', 'JUL20', 'AUG20', 'SEP20', 'OCT20', 'NOV20', 'DEC20'];
         
-        $getSymbolMonth = $symbolsMonth[$date - 1];
+//        $getSymbolMonth = $symbolsMonth[$date - 1];
+        
+        $getSymbolMonth = 'JUN20';
         
        $lines = file($file->name);
  
@@ -87,6 +89,8 @@ class FileService {
             $t = $temp;
         }
         
+        \Symfony\Component\VarDumper\VarDumper::dump($chunkArray); exit();
+        
         $jsonData = json_encode($chunkArray);
         
         if($this->repo->getMaxId()) {
@@ -103,4 +107,8 @@ class FileService {
 
       return [$pieces[0]];
     }
+    
+//    private function calculation ($chunkArray) : array {
+//        
+//    }
 }
