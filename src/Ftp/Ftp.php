@@ -19,14 +19,18 @@ class Ftp
         $this->fileName = $fileName;
     }
     
-    public function getZipArchive() : self {
-        ftp_login($this->connection, 'anonymous','');
+    public function init() : self {
+        ftp_login($this->connection, 'anonymous', '');
         ftp_pasv($this->connection, true);
         $list = ftp_nlist($this->connection, '/bulletin');
         $fileCount = count($list);
-        //$buff = $this->ftp_mdtm($list[$fileCount - 1]);
         $this->name = substr(($list[$fileCount - 1]), 10);
-        if (! ftp_get($this->connection, getcwd() . '/downloaded/' . $this->name, $list[$fileCount - 1], FTP_BINARY)) {
+                
+        return $this;
+    }
+    
+    public function getZipArchive() : self {
+        if (! ftp_get($this->connection, getcwd() . '/downloaded/' . $this->name, '/bulletin/' . $this->name, FTP_BINARY)) {
             throw new \Exception("file wasn't downloaded");
         }
         
@@ -78,5 +82,11 @@ class Ftp
         } while (file_exists($file));
  
         return $name;
+    }
+    
+    public function getFileTime() : string {
+        $time = date("Y-m-d H:i:s", ftp_mdtm($this->connection, '/bulletin/' . $this->name));
+        
+        return $time;
     }
 }

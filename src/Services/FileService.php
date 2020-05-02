@@ -20,7 +20,7 @@ class FileService {
     }
     
     public function createFile() : void {
-        $getFTPFile = $this->ftp->getZipArchive()->extractFromZip()->parsToTxt();
+        $getFTPFile = $this->ftp->init()->getZipArchive()->extractFromZip()->parsToTxt();
         
         $file = new File(getcwd() . '/downloaded/txt/' . $getFTPFile->fileTxt, new \DateTimeImmutable());
         
@@ -43,9 +43,9 @@ class FileService {
         
         $symbolsMonth = ['JAN21', 'FEB21', 'MAR21', 'APR20', 'MAY20', 'JUN20', 'JUL20', 'AUG20', 'SEP20', 'OCT20', 'NOV20', 'DEC20'];
         
-//        $getSymbolMonth = $symbolsMonth[$date - 1];
+        $getSymbolMonth = $symbolsMonth[$date - 1];
         
-        $getSymbolMonth = 'JUN20';
+        //$getSymbolMonth = 'JUN20';
         
        $lines = file($file->name);
  
@@ -89,7 +89,7 @@ class FileService {
             $t = $temp;
         }
         
-        \Symfony\Component\VarDumper\VarDumper::dump($chunkArray); exit();
+        //\Symfony\Component\VarDumper\VarDumper::dump($chunkArray); exit();
         
         $jsonData = json_encode($chunkArray);
         
@@ -107,8 +107,15 @@ class FileService {
 
       return [$pieces[0]];
     }
+     
+    public function CheckLastChangedFile() : string {
+        
+        $fileTime = $this->ftp->init()->getFileTime();
+        
+        return $fileTime;
+    }
     
-//    private function calculation ($chunkArray) : array {
-//        
-//    }
+    public function isExistFile() : bool {
+        
+    }
 }

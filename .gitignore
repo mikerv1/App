@@ -3,7 +3,7 @@ vendor/
 
 # Other directories & files
 tmp/
-DB/
+# DB/
 
 var/
 

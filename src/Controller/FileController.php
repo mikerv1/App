@@ -20,7 +20,9 @@ class FileController {
 //    private object $file;
 //    private object $migration;
     
-    public function __construct(FileService $service, FilesMigration $filesMigration, Logger $log)
+    public function __construct(FileService $service,
+                                FilesMigration $filesMigration,
+                                Logger $log)
     {
         $this->service = $service;
         $this->filesMigration = $filesMigration;
@@ -46,5 +48,9 @@ class FileController {
     
     public function getData() : void {
         $this->service->getData();
+    }
+    
+    public function checkFile() : string {
+        return $this->service->CheckLastChangedFile();
     }
 }

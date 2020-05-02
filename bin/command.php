@@ -31,8 +31,12 @@ $start = microtime(true);
 
 $app = $container->get(App\Controller\FileController::class);
 //$app->getFile();
-$app->getData();
+//$app->getData();
 //$app->migrate();
+$date = $app->checkFile();
+
+\Symfony\Component\VarDumper\VarDumper::dump($date); exit();
+
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
 error_reporting($errlevel);
