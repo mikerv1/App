@@ -37,7 +37,7 @@ switch ($route[0]) {
         $parameters = $route[2];
         
         $getController = $container->get($controller);
-        $getController->apiAction();
+        print_r($getController->apiAction());
         break;
 }
 

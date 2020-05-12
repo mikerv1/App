@@ -9,6 +9,9 @@ use Smalot\PdfParser\Parser;
 
 class Ftp
 {
+    
+    public string $fileTxt;
+    
     private $connection;
     private string $fileName;
     private string $name;
@@ -17,16 +20,33 @@ class Ftp
     {
         $this->connection = ftp_connect($connect);
         $this->fileName = $fileName;
+        $this->fileTxt = '';
+        $this->name = '';
+    }
+    
+    public function __get($name) {
+        if (property_exists($this, $name)) {
+            return $this->$name;
+        }
     }
     
     public function init() : self {
-        ftp_login($this->connection, 'anonymous', '');
-        ftp_pasv($this->connection, true);
-        $list = ftp_nlist($this->connection, '/bulletin');
-        $fileCount = count($list);
-        $this->name = substr(($list[$fileCount - 1]), 10);
-                
-        return $this;
+        if ($this->name) {
+            return $this;
+        } else {
+            ftp_login($this->connection, 'anonymous', '');
+            ftp_pasv($this->connection, true);
+            $list = ftp_nlist($this->connection, '/bulletin');
+            $fileCount = count($list);
+            $this->name = substr(($list[$fileCount - 1]), 10);
+
+            return $this;
+        }
+        
+    }
+    
+    public function closeConnect() : void {
+        ftp_close($this->connection);
     }
     
     public function getZipArchive() : self {
@@ -85,8 +105,6 @@ class Ftp
     }
     
     public function getFileTime() : string {
-        $time = date("Y-m-d H:i:s", ftp_mdtm($this->connection, '/bulletin/' . $this->name));
-        
-        return $time;
+        return date("Y-m-d H:i:s", ftp_mdtm($this->connection, '/bulletin/' . $this->name));
     }
 }

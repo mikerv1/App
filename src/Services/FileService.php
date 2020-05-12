@@ -19,36 +19,73 @@ class FileService {
         $this->ftp = $ftp;
     }
     
-    public function createFile() : void {
-        $getFTPFile = $this->ftp->init()->getZipArchive()->extractFromZip()->parsToTxt();
+    public function getDataArchiveFile() : array {
+        $ftp = $this->ftp->init();
         
-        $file = new File(getcwd() . '/downloaded/txt/' . $getFTPFile->fileTxt, new \DateTimeImmutable());
-        
-        if($this->repo->getMaxId()) {
-            $lastFile = $this->repo->getLastFile();
-            if($lastFile->status === File::ACTIVE) {
-                $lastFile->onClosed();
-                $this->repo->updateStatus($lastFile);
-            }
-        }
-        
-        $this->repo->save($file);
+        return [
+            'archiveName' => $ftp->name,
+            'archiveUpdatedAt' => new \DateTimeImmutable($ftp->getFileTime())
+        ];
     }
     
-    public function  getData() : void {
+    private function downloadArchiveFile() : object {
+        return $this->ftp->init()->getZipArchive()->extractFromZip()->parsToTxt();
+    }
+    
+    public function createFile() : void {
         
-        $file = $this->repo->getLastFile();
+        $dataArchiveFile = $this->getDataArchiveFile();
         
-        $date = $file->date->format('n');
+        if(!$this->repo->getMaxId()) {
+            $downloadFile = $this->downloadArchiveFile();
+            $getFtpFile = $downloadFile->fileTxt;
+            
+            $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
+            
+            $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
+                            $dataArchiveFile['archiveName'],
+                            new \DateTimeImmutable(),
+                            $dataArchiveFile['archiveUpdatedAt'],
+                            $data);
+
+            $this->repo->save($file);
+        } else {
+            $lastFile = $this->repo->getLastFile();
+            
+            if ($lastFile->status === File::ACTIVE &&
+                    ($lastFile->archiveName !== $dataArchiveFile['archiveName'] ||
+                    $lastFile->updated_at->format('Y-m-d H:i') !== $dataArchiveFile['archiveUpdatedAt']->format('Y-m-d H:i'))) {
+                        $lastFile->onClosed();
+                        $this->repo->updateStatus($lastFile);
+                
+                $downloadFile = $this->downloadArchiveFile();
+                $getFtpFile = $downloadFile->fileTxt;
+            
+                $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
+                
+                $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
+                            $dataArchiveFile['archiveName'],
+                            new \DateTimeImmutable(),
+                            $dataArchiveFile['archiveUpdatedAt'],
+                            $data);
+                
+                $this->repo->save($file);
+            }
+        }
+    }
+    
+    public function  getData(string $fileName, object $date) : string {
+        
+        $month = $date->format('n');
         
         $symbolsMonth = ['JAN21', 'FEB21', 'MAR21', 'APR20', 'MAY20', 'JUN20', 'JUL20', 'AUG20', 'SEP20', 'OCT20', 'NOV20', 'DEC20'];
         
-        $getSymbolMonth = $symbolsMonth[$date - 1];
+        $getSymbolMonth = $symbolsMonth[$month - 1];
         
         //$getSymbolMonth = 'JUN20';
         
-       $lines = file($file->name);
- 
+        $lines = file($fileName);
+        
         foreach($lines as $num_line => $line_value)
         {
             if(strpos($line_value, $getSymbolMonth) !== FALSE) {
@@ -56,7 +93,7 @@ class FileService {
             }
         }
         
-        $stream = new FileReader($file->name);
+        $stream = new FileReader($fileName);
         
         $stream->SetOffset($line[0]);
         $result = $stream->Read(1);
@@ -89,17 +126,7 @@ class FileService {
             $t = $temp;
         }
         
-        //\Symfony\Component\VarDumper\VarDumper::dump($chunkArray); exit();
-        
-        $jsonData = json_encode($chunkArray);
-        
-        if($this->repo->getMaxId()) {
-            $lastFile = $this->repo->getLastFile();
-            if($lastFile->status === File::ACTIVE) {
-                $lastFile->description = $jsonData;
-                $this->repo->updateDescription($lastFile);
-            }
-        }
+        return json_encode($chunkArray);
     }
     
     private function divide_sample(string $sample_number) : array {
@@ -108,14 +135,10 @@ class FileService {
       return [$pieces[0]];
     }
      
-    public function CheckLastChangedFile() : string {
+    public function LastChangedFile() : string {
         
         $fileTime = $this->ftp->init()->getFileTime();
         
         return $fileTime;
-    }
-    
-    public function isExistFile() : bool {
-        
     }
 }

@@ -30,12 +30,7 @@ $container = require 'config/container.php';
 $start = microtime(true);
 
 $app = $container->get(App\Controller\FileController::class);
-//$app->getFile();
-//$app->getData();
-//$app->migrate();
-$date = $app->checkFile();
-
-\Symfony\Component\VarDumper\VarDumper::dump($date); exit();
+$app->getFile();
 
 echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 

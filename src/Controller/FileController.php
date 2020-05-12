@@ -7,18 +7,11 @@ namespace App\Controller;
 use App\Services\FileService;
 use App\Migrations\FilesMigration;
 use Monolog\Logger;
-//use App\Repository\FileRepository;
-//
-//use App\Migrations\FilesMigration;
-//use Smalot\PdfParser\Parser;
 
 class FileController {
     private object $service;
     private object $filesMigration;
-//    private object $ftp;
     private object $log;
-//    private object $file;
-//    private object $migration;
     
     public function __construct(FileService $service,
                                 FilesMigration $filesMigration,
@@ -26,10 +19,7 @@ class FileController {
     {
         $this->service = $service;
         $this->filesMigration = $filesMigration;
-//        $this->ftp = $ftp;
         $this->log = $log;
-//        $this->file = $file;
-//        $this->migration = $migration;
     }
     
     public function migrate() : void {
@@ -46,11 +36,7 @@ class FileController {
         }
     }
     
-    public function getData() : void {
-        $this->service->getData();
-    }
-    
-    public function checkFile() : string {
-        return $this->service->CheckLastChangedFile();
+    public function checkFile() : array {
+        return $this->service->getDataArchiveFile();
     }
 }

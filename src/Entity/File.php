@@ -10,30 +10,39 @@ class File {
     public const CLOSED = 'closed';
     
     public int $id;
-    public string $name;
-    public object $date;
+    public string $fileName;
+    public string $archiveName;
+    public object $created_at;
+    public object $updated_at;
     public string $status;
     public string $description;
     
-    public function __construct(string $name,
-                                \DateTimeImmutable $date)
+    public function __construct(string $fileName,
+                                string $archiveName,
+                                \DateTimeImmutable $created_at,
+                                \DateTimeImmutable $updated_at,
+                                $description)
     {
-        $this->name = $name;
-        $this->date = $date ?? new \DateTimeImmutable();
+        $this->fileName = $fileName;
+        $this->archiveName = $archiveName;
+        $this->created_at = $created_at ?? new \DateTimeImmutable();
+        $this->updated_at = $updated_at ?? new \DateTimeImmutable();
         $this->status = $this->status ?? self::ACTIVE;
-        $this->description = '';
+        $this->description = $description ?? '';
     }
     
     public static function createFileViaHandle(int $id,
-                                         string $name,
-                                         \DateTimeImmutable $date,
+                                         string $fileName,
+                                         string $archiveName,
+                                         \DateTimeImmutable $created_at,
+                                         \DateTimeImmutable $updated_at,
                                          string $status, 
                                          string $description) : self
     {
-        $file = new self($name, $date);
+        $file = new self($fileName, $archiveName, $created_at, $updated_at, $description);
         $file->id = $id;
         $file->status = $status;
-        $file->description = $description;
+//        $file->description = $description;
         
         return $file;
     }

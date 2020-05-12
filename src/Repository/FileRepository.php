@@ -23,20 +23,20 @@ class FileRepository
         return ((int)($id[0]));
     }
 
-    public function save(File $file) : string {
+    public function save(File $file) : void {
         
-        $sql = 'INSERT INTO files (name, date, status, description)'
-                . 'VALUES (:name, :date, :status, :description)';
+        $sql = 'INSERT INTO files (file_name, archive_name, created_at, updated_at, status, description) VALUES (:file_name, :archive_name, :created_at, :updated_at, :status, :description)';
 
         $stmt = $this->pdo->prepare($sql);
+
         $stmt->execute([
-            ':name' => $file->name,
-            ':date' => $file->date->format('Y-m-d H:i:s'),
+            ':file_name' => $file->fileName,
+            ':archive_name' => $file->archiveName,
+            ':created_at' => $file->created_at->format('Y-m-d H:i:s'),
+            ':updated_at' => $file->updated_at->format('Y-m-d H:i:s'),
             ':status' => $file->status,
             ':description' => $file->description
         ]);
-
-        return $this->pdo->lastInsertId();
     }
     
     public function updateStatus(File $file) : void {
@@ -65,14 +65,16 @@ class FileRepository
 
     public function getLastFile() : ?File {
         
-        $sql = 'SELECT id, name, date, status, description from files WHERE status="active"';
+        $sql = 'SELECT id, file_name, archive_name, created_at, updated_at, status, description FROM files WHERE status="active"';
         $stmt = $this->pdo->prepare($sql);
         $stmt->setFetchMode(\PDO::FETCH_OBJ);
         $stmt->execute();
         $obj = $stmt->fetch();
         $file = File::createFileViaHandle((int)$obj->id,
-                                          $obj->name, 
-                                          new \DateTimeImmutable($obj->date), 
+                                          $obj->file_name,
+                                          $obj->archive_name,
+                                          new \DateTimeImmutable($obj->created_at),
+                                          new \DateTimeImmutable($obj->updated_at),
                                           $obj->status, 
                                           (string)$obj->description);
         return $file;
