@@ -66,7 +66,7 @@ class Ftp
         $zip->close();
         
         chmod(getcwd() . '/downloaded/unzip/' . $this->fileName, 0777);
-//        
+        
         return $this;
     }    
     

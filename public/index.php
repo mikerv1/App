@@ -15,7 +15,7 @@ require dirname(__DIR__).'/vendor/autoload.php';
 
 $container = require 'config/container.php';
 
-$start = microtime(true);
+//$start = microtime(true);
 
 $dispatcher = FastRoute\simpleDispatcher(function (RouteCollector $r) {
     $r->addRoute('GET', '/', 'App\Controller\ApiController');
@@ -41,7 +41,7 @@ switch ($route[0]) {
         break;
 }
 
-echo"executed:". (microtime(true) - $start) . \PHP_EOL;
+//echo"executed:". (microtime(true) - $start) . \PHP_EOL;
 
 error_reporting($errlevel);
 ini_set('display_errors','Off');
