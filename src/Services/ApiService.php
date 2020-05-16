@@ -15,14 +15,12 @@ class ApiService {
         for ($i = 0; $i < count($array); $i ++) {
             
             if ((int)$array[$i][6]) {
-                print_r($array[$i][6]);
-                echo '</br>';
                 $a = (float)(((int)$array[$i][0]) / 1000);
                 $b = (float)(((float)$array[$i][5]) * 0.01);
                 $c[] = $a - $b;
             }
         }
-        
+        //dd($c);
         return json_encode($c);
     }
 }

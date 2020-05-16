@@ -35,9 +35,8 @@ switch ($route[0]) {
     case FastRoute\Dispatcher::FOUND:
         $controller = $route[1];
         $parameters = $route[2];
-        
         $getController = $container->get($controller);
-        print_r($getController->apiAction());
+        dd($getController->apiAction());
         break;
 }
 

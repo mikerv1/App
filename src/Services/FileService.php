@@ -51,26 +51,30 @@ class FileService {
             $this->repo->save($file);
         } else {
             $lastFile = $this->repo->getLastFile();
+        
+        
+        if ($lastFile->status === File::ACTIVE &&
+            ($lastFile->archiveName !== $dataArchiveFile['archiveName'] ||
+            $lastFile->updated_at->format('Y-m-d H:i') !== $dataArchiveFile['archiveUpdatedAt']->format('Y-m-d H:i'))) {
+
+            $downloadFile = $this->downloadArchiveFile();
+            $getFtpFile = $downloadFile->fileTxt;
+
+            $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
+
+            $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
+                        $dataArchiveFile['archiveName'],
+                        new \DateTimeImmutable(),
+                        $dataArchiveFile['archiveUpdatedAt'],
+                        $data);
+
+            $lastFile->onClosed();
+            $this->repo->updateStatus($lastFile);
+
+            $this->repo->save($file);
             
-            if ($lastFile->status === File::ACTIVE &&
-                    ($lastFile->archiveName !== $dataArchiveFile['archiveName'] ||
-                    $lastFile->updated_at->format('Y-m-d H:i') !== $dataArchiveFile['archiveUpdatedAt']->format('Y-m-d H:i'))) {
-                        $lastFile->onClosed();
-                        $this->repo->updateStatus($lastFile);
-                
-                $downloadFile = $this->downloadArchiveFile();
-                $getFtpFile = $downloadFile->fileTxt;
-            
-                $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
-                
-                $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
-                            $dataArchiveFile['archiveName'],
-                            new \DateTimeImmutable(),
-                            $dataArchiveFile['archiveUpdatedAt'],
-                            $data);
-                
-                $this->repo->save($file);
             }
+
         }
     }
     
