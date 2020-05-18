@@ -42,14 +42,11 @@ class FileRepository
         ]);
     }
 
-    public function getLastFile() : File {
+    public function getLastFile() : ?File {
         
-        $sql = 'SELECT *
-                FROM files
-                WHERE updated_at=(SELECT MAX(updated_at) FROM files)
-                AND status="active"';
-        
-        //$sql = 'SELECT id, file_name, archive_name, created_at, updated_at, status, description FROM files WHERE status="active"';
+        $sql = 'SELECT MAX(id) as id, file_name, archive_name, created_at, updated_at, status, description 
+                FROM files 
+                WHERE status="active"';
         $stmt = $this->pdo->prepare($sql);
         $stmt->setFetchMode(\PDO::FETCH_OBJ);
         $stmt->execute();
