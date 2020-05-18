@@ -80,13 +80,13 @@ class Ftp
         
         chmod(getcwd() . '/downloaded/txt/' . $this->fileTxt, 0777);
         
-//        if (file_exists(getcwd() . '/downloaded/' . $this->name)) {
-//            unlink(getcwd() . '/downloaded/' . $this->name);
-//        }
-//        
-//        if (file_exists(getcwd() . '/downloaded/unzip/' . $this->fileName)) {
-//            unlink(getcwd() . '/downloaded/unzip/' . $this->fileName);
-//        }
+        if (file_exists(getcwd() . '/downloaded/' . $this->name)) {
+            unlink(getcwd() . '/downloaded/' . $this->name);
+        }
+        
+        if (file_exists(getcwd() . '/downloaded/unzip/' . $this->fileName)) {
+            unlink(getcwd() . '/downloaded/unzip/' . $this->fileName);
+        }
         
         return $this;
     }

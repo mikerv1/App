@@ -14,15 +14,6 @@ class FileRepository
         $this->pdo = $pdo;
     }
 
-    public function getMaxId() : int {
-        
-        $sql = 'SELECT MAX(id) from files';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt -> execute();
-        $id = $stmt->fetch(\PDO::FETCH_NUM);
-        return ((int)($id[0]));
-    }
-
     public function save(File $file) : void {
         
         $sql = 'INSERT INTO files (file_name, archive_name, created_at, updated_at, status, description) VALUES (:file_name, :archive_name, :created_at, :updated_at, :status, :description)';
@@ -50,26 +41,24 @@ class FileRepository
             ':status' => $file->status
         ]);
     }
-    
-    public function updateDescription(File $file) : void {
-        
-        $sql = 'UPDATE files SET description = (:description) WHERE id = (:id)';
-        
-        $stmt = $this->pdo->prepare($sql);
-        
-        $stmt->execute([
-            ':id' => $file->id,
-            ':description' => $file->description
-        ]);
-    }
 
-    public function getLastFile() : ?File {
+    public function getLastFile() : File {
         
-        $sql = 'SELECT id, file_name, archive_name, created_at, updated_at, status, description FROM files WHERE status="active"';
+        $sql = 'SELECT *
+                FROM files
+                WHERE updated_at=(SELECT MAX(updated_at) FROM files)
+                AND status="active"';
+        
+        //$sql = 'SELECT id, file_name, archive_name, created_at, updated_at, status, description FROM files WHERE status="active"';
         $stmt = $this->pdo->prepare($sql);
         $stmt->setFetchMode(\PDO::FETCH_OBJ);
         $stmt->execute();
         $obj = $stmt->fetch();
+        
+        if (!$obj) {
+            throw new \Exception("file is not exist");
+        }
+        
         $file = File::createFileViaHandle((int)$obj->id,
                                           $obj->file_name,
                                           $obj->archive_name,

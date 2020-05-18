@@ -20,61 +20,39 @@ class FileService {
     }
     
     public function getDataArchiveFile() : array {
+        
         $ftp = $this->ftp->init();
         
         return [
             'archiveName' => $ftp->name,
             'archiveUpdatedAt' => new \DateTimeImmutable($ftp->getFileTime())
-        ];
+        ];  
     }
     
-    private function downloadArchiveFile() : object {
-        return $this->ftp->init()->getZipArchive()->extractFromZip()->parsToTxt();
-    }
+    
     
     public function createFile() : void {
         
         $dataArchiveFile = $this->getDataArchiveFile();
         
-        if(!$this->repo->getMaxId()) {
-            $downloadFile = $this->downloadArchiveFile();
-            $getFtpFile = $downloadFile->fileTxt;
-            
-            $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
-            
-            $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
-                            $dataArchiveFile['archiveName'],
-                            new \DateTimeImmutable(),
-                            $dataArchiveFile['archiveUpdatedAt'],
-                            $data);
-
-            $this->repo->save($file);
-        } else {
+        try {
             $lastFile = $this->repo->getLastFile();
+        } catch (\Exception $e) {
+            $downloadFile = $this->downloadArchiveFile($dataArchiveFile);
+            $this->repo->save($downloadFile);
+            throw $e;
+        }
         
-        
-        if ($lastFile->status === File::ACTIVE &&
+        if ($lastFile->isActive() &&
             ($lastFile->archiveName !== $dataArchiveFile['archiveName'] ||
             $lastFile->updated_at->format('Y-m-d H:i') !== $dataArchiveFile['archiveUpdatedAt']->format('Y-m-d H:i'))) {
-
-            $downloadFile = $this->downloadArchiveFile();
-            $getFtpFile = $downloadFile->fileTxt;
-
-            $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
-
-            $file = new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
-                        $dataArchiveFile['archiveName'],
-                        new \DateTimeImmutable(),
-                        $dataArchiveFile['archiveUpdatedAt'],
-                        $data);
+            
+            $downloadFile = $this->downloadArchiveFile($dataArchiveFile);
 
             $lastFile->onClosed();
             $this->repo->updateStatus($lastFile);
 
-            $this->repo->save($file);
-            
-            }
-
+            $this->repo->save($downloadFile);
         }
     }
     
@@ -134,15 +112,22 @@ class FileService {
     }
     
     private function divide_sample(string $sample_number) : array {
+        
       preg_match("/([a-zA-Z]*)([\-0-9]*)/", $sample_number, $pieces);
 
       return [$pieces[0]];
     }
-     
-    public function LastChangedFile() : string {
+    
+    private function downloadArchiveFile(array $dataArchiveFile) : File {
         
-        $fileTime = $this->ftp->init()->getFileTime();
-        
-        return $fileTime;
+        $downloadFile = $this->ftp->init()->getZipArchive()->extractFromZip()->parsToTxt();
+        $getFtpFile = $downloadFile->fileTxt;
+        $data = $this->getData(getcwd() . '/downloaded/txt/' . $getFtpFile, $dataArchiveFile['archiveUpdatedAt']);
+            
+        return new File(getcwd() . '/downloaded/txt/' . $getFtpFile,
+                        $dataArchiveFile['archiveName'],
+                        new \DateTimeImmutable(),
+                        $dataArchiveFile['archiveUpdatedAt'],
+                        $data);
     }
 }

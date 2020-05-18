@@ -42,7 +42,6 @@ class File {
         $file = new self($fileName, $archiveName, $created_at, $updated_at, $description);
         $file->id = $id;
         $file->status = $status;
-//        $file->description = $description;
         
         return $file;
     }
@@ -57,7 +56,8 @@ class File {
         return $this->status === self::ACTIVE;
     }
     
-    public function onClosed() : void {
+    public function onClosed() : void
+    {
         $this->status = self::CLOSED;
     }
 }

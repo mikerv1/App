@@ -29,10 +29,12 @@ class FileController {
     public function getFile() : void {
         try {
             $this->service->createFile();
+            $this->log->info('File downloaded');
         }
         catch (\Exception $e)
         {
             $this->log->info($e->getMessage());
+            $this->log->info($e->getTraceAsString());
         }
     }
     
